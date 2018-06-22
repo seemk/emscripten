@@ -1346,6 +1346,10 @@ def verify_settings():
 Settings = SettingsManager()
 verify_settings()
 
+  if run_process([WASM_LD, '--version'], stdout=PIPE, stderr=PIPE, check=False).returncode != 0:
+    logging.critical('WASM_BACKEND selected but could not find lld (wasm-ld):')
+    logging.critical(WASM_LD)
+
 
 # llvm-ar appears to just use basenames inside archives. as a result, files with the same basename
 # will trample each other when we extract them. to help warn of such situations, we warn if there
@@ -1890,9 +1894,8 @@ class Building(object):
 
   @staticmethod
   def llvm_backend_args():
-    args = ['-thread-model=single'] # no threads support in backend, tell llc to not emit atomics
     # disable slow and relatively unimportant optimization passes
-    args += ['-combiner-global-alias-analysis=false']
+    args = ['-combiner-global-alias-analysis=false']
 
     # asm.js-style exception handling
     if Settings.DISABLE_EXCEPTION_CATCHING != 1:
@@ -2597,6 +2600,11 @@ class Building(object):
       return b[20] == ord('B') and b[21] == ord('C')
 
     return False
+
+  @staticmethod
+  def is_wasm(filename):
+    magic = bytearray(open(filename, 'rb').read(4))
+    return magic == '\0asm'
 
   @staticmethod
   # Given the name of a special Emscripten-implemented system library, returns an array of absolute paths to JS library
