@@ -5688,6 +5688,10 @@ return malloc(size);
   def test_simd_sitofp(self):
     self.do_run_in_out_file_test('tests', 'core', 'test_simd_sitofp')
 
+  @SIMD
+  def test_simd_shift_right(self):
+    self.do_run_in_out_file_test('tests', 'core', 'test_simd_shift_right')
+
   def test_gcc_unmangler(self):
     Building.COMPILER_TEST_OPTS += ['-I' + path_from_root('third_party')]
 
@@ -6217,6 +6221,7 @@ def process(filename):
 
   @sync
   def test_ccall(self):
+    self.emcc_args.append('-Wno-return-stack-address')
     self.set_setting('EXTRA_EXPORTED_RUNTIME_METHODS', ['ccall', 'cwrap'])
     post = '''
 def process(filename):
@@ -7886,7 +7891,7 @@ binaryen2s = make_run('binaryen2s', emcc_args=['-O2', '-s', 'SAFE_HEAP=1'])
 binaryen2_interpret = make_run('binaryen2_interpret', emcc_args=['-O2', '-s', 'BINARYEN_METHOD="interpret-binary"'])
 
 # emterpreter
-asmi = make_run('asmi', emcc_args=['-s', 'EMTERPRETIFY=1', '-s', 'WASM=0'])
+asmi = make_run('asmi', emcc_args=['-s', 'ASM_JS=2', '-s', 'EMTERPRETIFY=1', '-s', 'WASM=0'])
 asm2i = make_run('asm2i', emcc_args=['-O2', '-s', 'EMTERPRETIFY=1', '-s', 'WASM=0'])
 
 del T # T is just a shape for the specific subclasses, we don't test it itself
